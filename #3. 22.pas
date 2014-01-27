@@ -1,4 +1,4 @@
-program Vassilyev_3_22
+program Vassilyev_3_22;
 type
     Ttree = ^tree;
     tree = record
