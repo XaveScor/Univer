@@ -79,28 +79,16 @@ begin
 strToTree := exp;
 end;
 
-
-procedure pprintTreePost(exp: Ttree);
-begin
-    if (exp^.left = nil) and (exp^.right = nil) then
-        write(exp^.value)
-    else begin
-        write('(');
-        pprintTreePost(exp^.left);
-        pprintTreePost(exp^.right);
-        write(exp^.value);
-        write(')');
-  end;
-end;
-
 procedure printTreePost(exp: Ttree);
 begin
     if (exp^.left = nil) and (exp^.right = nil) then
         write(exp^.value)
     else begin
-        pprintTreePost(exp^.left);
-        pprintTreePost(exp^.right);
+        write('(');
+        printTreePost(exp^.left);
+        printTreePost(exp^.right);
         write(exp^.value);
+        write(')');
   end;
 end;
 
@@ -110,6 +98,5 @@ begin
     
     exp := strToTree(str);
     
-    //write(exp^.value);
     printTreePost(exp);
 end.
