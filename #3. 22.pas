@@ -65,7 +65,7 @@ procedure error(i: integer; str, exp: string);
 var
 	j: integer;
 begin
-	writeLn('Ошибка в ',i,' символе. ',str);
+	writeLn('РћС€РёР±РєР° РІ ',i,' СЃРёРјРІРѕР»Рµ. ',str);
 	for j := 1 to length(exp) do 
 		if i = j then
 			write('_',exp[j],'_')
@@ -88,9 +88,9 @@ begin
             substr := substr + str[i];
         
         if str[i] = '(' then begin
-            {Если скобка открылась перед цифрой или X без знака}
+            {Р•СЃР»Рё СЃРєРѕР±РєР° РѕС‚РєСЂС‹Р»Р°СЃСЊ РїРµСЂРµРґ С†РёС„СЂРѕР№ РёР»Рё X Р±РµР· Р·РЅР°РєР°}
             if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-            	error(i, 'Перед скобкой может быть только знак операции или другая открывающая скобка.', str);
+            	error(i, 'РџРµСЂРµРґ СЃРєРѕР±РєРѕР№ РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ Р·РЅР°Рє РѕРїРµСЂР°С†РёРё РёР»Рё РґСЂСѓРіР°СЏ РѕС‚РєСЂС‹РІР°СЋС‰Р°СЏ СЃРєРѕР±РєР°.', str);
                 isValid := false;
                 exit();
             end;
@@ -99,14 +99,14 @@ begin
             isOpened := true;
         end
         else if str[i] = ')' then begin
-            {Если скобка закрылась перед знаком}
+            {Р•СЃР»Рё СЃРєРѕР±РєР° Р·Р°РєСЂС‹Р»Р°СЃСЊ РїРµСЂРµРґ Р·РЅР°РєРѕРј}
             if open = 0 then begin
-            	error(i, 'Для закрывающей скобки нет открывающей.', str);
+            	error(i, 'Р”Р»СЏ Р·Р°РєСЂС‹РІР°СЋС‰РµР№ СЃРєРѕР±РєРё РЅРµС‚ РѕС‚РєСЂС‹РІР°СЋС‰РµР№.', str);
                 isValid := false;
                 exit();
             end;
             if isSign(lastSymbol) or (lastSymbol = '(') then begin
-                error(i, 'Перед закрывающей скобкой не может быть знака операции или другой скобки.', str);
+                error(i, 'РџРµСЂРµРґ Р·Р°РєСЂС‹РІР°СЋС‰РµР№ СЃРєРѕР±РєРѕР№ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р·РЅР°РєР° РѕРїРµСЂР°С†РёРё РёР»Рё РґСЂСѓРіРѕР№ СЃРєРѕР±РєРё.', str);
                 isValid := false;
                 exit();
             end;
@@ -117,36 +117,36 @@ begin
         else begin
             if isDigit(str[i]) then begin
                 if not(isDigit(lastSymbol) or isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    error(i, 'Неверный формат числа.', str);
+                    error(i, 'РќРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ С‡РёСЃР»Р°.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else if isVar(str[i]) then begin
                 if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    error(i, 'Неверный формат переменной.', str);
+                    error(i, 'РќРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ РїРµСЂРµРјРµРЅРЅРѕР№.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else if isSignPlus(str[i]) then begin
                 if not(isDigit(lastSymbol) or isVar(lastSymbol) or (lastSymbol = ')')) then begin
-                    error(i, 'Ошибка со знаком операции.', str);
+                    error(i, 'РћС€РёР±РєР° СЃРѕ Р·РЅР°РєРѕРј РѕРїРµСЂР°С†РёРё.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else begin
-                error(i, 'Ваша формула не прошла валидацию. Введите формулу в верном формате.', str);
+                error(i, 'Р’Р°С€Р° С„РѕСЂРјСѓР»Р° РЅРµ РїСЂРѕС€Р»Р° РІР°Р»РёРґР°С†РёСЋ. Р’РІРµРґРёС‚Рµ С„РѕСЂРјСѓР»Сѓ РІ РІРµСЂРЅРѕРј С„РѕСЂРјР°С‚Рµ.', str);
                 isValid := false;
                 exit();
              end;
         end;
         
         if isOpened and (open = 0) then begin    
-            delete(substr, length(substr), 1); {Удаляем последнюю скобку}
+            delete(substr, length(substr), 1); {РЈРґР°Р»СЏРµРј РїРѕСЃР»РµРґРЅСЋСЋ СЃРєРѕР±РєСѓ}
             if not(isValid(substr)) then begin
-                error(i, 'Неверный баланс скобок.', str);
+                error(i, 'РќРµРІРµСЂРЅС‹Р№ Р±Р°Р»Р°РЅСЃ СЃРєРѕР±РѕРє.', str);
                 isValid := false;
                 exit();
             end;
@@ -158,7 +158,7 @@ begin
     end;
     
     if open > 0 then begin
-    	write('Не хватает закрывающих скобок');
+    	write('РќРµ С…РІР°С‚Р°РµС‚ Р·Р°РєСЂС‹РІР°СЋС‰РёС… СЃРєРѕР±РѕРє');
     	isValid := false;
    	end
    	else
@@ -244,7 +244,7 @@ begin
 end;
 
 begin
-    write('Введите выражение в нормальном виде или "q", чтобы завершить программу.');
+    write('Р’РІРµРґРёС‚Рµ РІС‹СЂР°Р¶РµРЅРёРµ РІ РЅРѕСЂРјР°Р»СЊРЅРѕРј РІРёРґРµ РёР»Рё "q", С‡С‚РѕР±С‹ Р·Р°РІРµСЂС€РёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ.');
     repeat
     	writeLn();
         readLn(str);

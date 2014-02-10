@@ -336,7 +336,7 @@ begin
     i := 1;
     while sort(tempArr[from], tempArr[_to]) do 
     begin
-        {writeLn('иттерация ', i);
+        {writeLn('РёС‚С‚РµСЂР°С†РёСЏ ', i);
         inc(i);
         for j := 1 to n do
             write(dateToStr(tempArr[_to][j]), ' ');
@@ -374,10 +374,10 @@ end;
 
 procedure printHead();
 begin
-    writeLn('                         Метод естественного слияния');
+    writeLn('                         РњРµС‚РѕРґ РµСЃС‚РµСЃС‚РІРµРЅРЅРѕРіРѕ СЃР»РёСЏРЅРёСЏ');
     printMargin();
-    writeLn('       |  n |  параметр   |     номер последовательности   |  среднее  |');
-    writeLn('       |    |             |     1    2    3    4    5      |  значение |');
+    writeLn('       |  n |  РїР°СЂР°РјРµС‚СЂ   |     РЅРѕРјРµСЂ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё   |  СЃСЂРµРґРЅРµРµ  |');
+    writeLn('       |    |             |     1    2    3    4    5      |  Р·РЅР°С‡РµРЅРёРµ |');
     printMargin();
 end;
 
@@ -387,9 +387,9 @@ var
 begin
     size := 5;
     sum := num11 + num12 + num13 + num14 + num15;
-    writeLn('       |', n:3, ' |  сравнение  |  ', num11:size, num12:size, num13:size, num14:size, num15:size, '      |', (sum div 5):7, '   |');
+    writeLn('       |', n:3, ' |  СЃСЂР°РІРЅРµРЅРёРµ  |  ', num11:size, num12:size, num13:size, num14:size, num15:size, '      |', (sum div 5):7, '   |');
     sum := num21 + num22 + num23 + num24 + num25;
-    writeLn('       |    | перемещения |  ', num21:size, num22:size, num23:size, num24:size, num25:size, '      |', (sum div 5):7, '   |');
+    writeLn('       |    | РїРµСЂРµРјРµС‰РµРЅРёСЏ |  ', num21:size, num22:size, num23:size, num24:size, num25:size, '      |', (sum div 5):7, '   |');
     printMargin();
 end;
 
