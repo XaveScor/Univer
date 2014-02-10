@@ -61,6 +61,18 @@ begin
         isNumOrVar := false;
 end;
 
+procedure error(i: integer; str, exp: string);
+var
+	j: integer;
+begin
+	writeLn('Ошибка в ',i,' символе. ',str);
+	for j := 1 to length(exp) do 
+		if i = j then
+			write('_',exp[j],'_')
+		else
+			write(exp[j]);
+end;
+
 function isValid(str: string): boolean;
 var
     i, open, open_position: integer;
@@ -68,11 +80,6 @@ var
     substr: string;
     lastSymbol: char;
 begin
-    if (str = '()') then begin
-        writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
-        isValid := false;
-        exit();
-    end;
     isOpened := false;
     lastSymbol := '.';
     
@@ -82,21 +89,24 @@ begin
         
         if str[i] = '(' then begin
             {Если скобка открылась перед цифрой или X без знака}
-            if not(isSignPlus(lastSymbol)) then begin
-                writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+            if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
+            	error(i, 'Перед скобкой может быть только знак операции или другая открывающая скобка.', str);
                 isValid := false;
                 exit();
             end;
             
-            if open = 0 then
-                open_position := i;
             inc(open);
             isOpened := true;
         end
         else if str[i] = ')' then begin
             {Если скобка закрылась перед знаком}
-            if isSign(lastSymbol) then begin
-                writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+            if open = 0 then begin
+            	error(i, 'Для закрывающей скобки нет открывающей.', str);
+                isValid := false;
+                exit();
+            end;
+            if isSign(lastSymbol) or (lastSymbol = '(') then begin
+                error(i, 'Перед закрывающей скобкой не может быть знака операции или другой скобки.', str);
                 isValid := false;
                 exit();
             end;
@@ -107,27 +117,27 @@ begin
         else begin
             if isDigit(str[i]) then begin
                 if not(isDigit(lastSymbol) or isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+                    error(i, 'Неверный формат числа.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else if isVar(str[i]) then begin
                 if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+                    error(i, 'Неверный формат переменной.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else if isSignPlus(str[i]) then begin
                 if not(isDigit(lastSymbol) or isVar(lastSymbol) or (lastSymbol = ')')) then begin
-                    writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+                    error(i, 'Ошибка со знаком операции.', str);
                     isValid := false;
                     exit();
                 end;
              end
              else begin
-                writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+                error(i, 'Ваша формула не прошла валидацию. Введите формулу в верном формате.', str);
                 isValid := false;
                 exit();
              end;
@@ -136,7 +146,7 @@ begin
         if isOpened and (open = 0) then begin    
             delete(substr, length(substr), 1); {Удаляем последнюю скобку}
             if not(isValid(substr)) then begin
-                writeLn('Ваша формула не прошла валидацию. Введите формулу в верном формате.');
+                error(i, 'Неверный баланс скобок.', str);
                 isValid := false;
                 exit();
             end;
@@ -147,20 +157,20 @@ begin
         lastSymbol := str[i];
     end;
     
-    isValid := true;
+    if open > 0 then begin
+    	write('Не хватает закрывающих скобок');
+    	isValid := false;
+   	end
+   	else
+   		isValid := true;
 end;
 
-function strToTree(str: string): Ttree;
-var
-    exp: Ttree;
-    i, open, saved_position: integer;
-    first_op: boolean;
+function clear(str: string): string;
+var	
+	open, i: integer;
 begin
-    first_op := false;
-    new(exp);
-    
-    open := 1;
-    if str[1] = '(' then
+	while str[1] = '(' do begin
+    	open := 1;
         for i := 2 to length(str) do begin
             if str[i] = '(' then
                 inc(open)
@@ -173,6 +183,20 @@ begin
                     break;
             end;        
         end;
+    end;
+    clear := str;
+end;
+
+function strToTree(str: string): Ttree;
+var
+    exp: Ttree;
+    i, saved_position: integer;
+    first_op: boolean;
+begin
+    first_op := false;
+    new(exp);
+    
+    str := clear(str);
     
     i := 1;
     if not(isNumOrVar(str)) then begin
@@ -220,9 +244,12 @@ begin
 end;
 
 begin
-    writeLn('Введите выражение в нормальном виде');
+    write('Введите выражение в нормальном виде или "q", чтобы завершить программу.');
     repeat
+    	writeLn();
         readLn(str);
+        if str = 'q' then
+        	halt();
     until isValid(str);
     
     exp := strToTree(str);
