@@ -106,7 +106,7 @@ begin
         {number or var}
         else begin
             if isDigit(str[i]) then begin
-                if not(isDigit(lastSymbol) or isSignPlus(lastSymbol)) then begin
+                if not(isDigit(lastSymbol) or isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
                     writeLn('¬аша формула не прошла валидацию. ¬ведите формулу в верном формате.');
                     isValid := false;
                     exit();
