@@ -1,4 +1,5 @@
-program Vassilyev_3_22;
+﻿program Vassilyev_3_22;
+
 type
     Ttree = ^tree;
     tree = record
@@ -12,34 +13,22 @@ var
 
 function isDigit(chr: char): boolean;
 begin
-    if chr in ['0'..'9'] then
-        isDigit := true
-    else
-        isDigit := false;
+    isDigit := chr in ['0'..'9'];
 end;
 
 function isVar(chr: char): boolean;
 begin
-    if chr in ['a'..'z', 'A'..'Z'] then
-        isVar := true
-    else
-        isVar := false;
+    isVar := chr in ['a'..'z', 'A'..'Z'];
 end;
 
 function isSign(chr: char): boolean;
 begin
-    if chr in ['+', '-', '*', '/'] then
-        isSign := true
-    else
-        isSign := false;
+    isSign := chr in ['+', '-', '*', '/'];
 end;
 
 function isSignPlus(chr: char): boolean;
 begin
-    if chr in ['+', '-', '*', '/', '.'] then
-        isSignPlus := true
-    else
-        isSignPlus := false;
+    isSignPlus := chr in ['+', '-', '*', '/', '.'];
 end;
 
 function isNumOrVar(str: string): boolean;
@@ -47,11 +36,10 @@ var
     i: integer;
 begin
     if length(str) = 1 then
-        if isVar(str[1]) or isDigit(str[1]) then
-            isNumOrVar := true
+        isNumOrVar := isVar(str[1]) or isDigit(str[1])
     else if length(str) > 1 then begin
         for i := 1 to length(str) do
-            if isDigit(str[i]) then begin
+            if not(isDigit(str[i])) then begin
                 isNumOrVar := false;
                 exit();
             end;
@@ -61,51 +49,55 @@ begin
         isNumOrVar := false;
 end;
 
+function isOpenBracket(chr: char): boolean;
+begin
+    isOpenBracket := chr = '(';
+end;
+
+function isCloseBracket(chr: char): boolean;
+begin
+    isCloseBracket := chr = ')';
+end;
+
 procedure error(i: integer; str, exp: string);
 var
-	j: integer;
+    j: integer;
 begin
-	writeLn('Ошибка в ',i,' символе. ',str);
-	for j := 1 to length(exp) do 
-		if i = j then
-			write('_',exp[j],'_')
-		else
-			write(exp[j]);
+    writeLn('Ошибка в ', i, ' символе. ', str);
+    for j := 1 to length(exp) do 
+        if i = j then
+            write('_', exp[j], '_')
+        else
+            write(exp[j]);
 end;
 
 function isValid(str: string): boolean;
 var
-    i, open, open_position: integer;
-    isOpened: boolean;
-    substr: string;
+    i, open: integer;
     lastSymbol: char;
 begin
-    isOpened := false;
     lastSymbol := '.';
     
-    for i := 1 to length(str) do begin
-        if isOpened then
-            substr := substr + str[i];
-        
-        if str[i] = '(' then begin
+    for i := 1 to length(str) do 
+    begin
+        if isOpenBracket(str[i]) then begin
             {Если скобка открылась перед цифрой или X без знака}
-            if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-            	error(i, 'Перед скобкой может быть только знак операции или другая открывающая скобка.', str);
+            if not (isSignPlus(lastSymbol) or isOpenBracket(lastSymbol)) then begin
+                error(i, 'Перед скобкой может быть только знак операции или другая открывающая скобка.', str);
                 isValid := false;
                 exit();
             end;
             
             inc(open);
-            isOpened := true;
         end
-        else if str[i] = ')' then begin
+        else if isCloseBracket(str[i]) then begin
             {Если скобка закрылась перед знаком}
             if open = 0 then begin
-            	error(i, 'Для закрывающей скобки нет открывающей.', str);
+                error(i, 'Для закрывающей скобки нет открывающей.', str);
                 isValid := false;
                 exit();
             end;
-            if isSign(lastSymbol) or (lastSymbol = '(') then begin
+            if isSign(lastSymbol) or isOpenBracket(lastSymbol) then begin
                 error(i, 'Перед закрывающей скобкой не может быть знака операции или другой скобки.', str);
                 isValid := false;
                 exit();
@@ -113,78 +105,66 @@ begin
             
             dec(open);
         end
-        {number or var}
-        else begin
-            if isDigit(str[i]) then begin
-                if not(isDigit(lastSymbol) or isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    error(i, 'Неверный формат числа.', str);
-                    isValid := false;
-                    exit();
-                end;
-             end
-             else if isVar(str[i]) then begin
-                if not(isSignPlus(lastSymbol) or (lastSymbol = '(')) then begin
-                    error(i, 'Неверный формат переменной.', str);
-                    isValid := false;
-                    exit();
-                end;
-             end
-             else if isSignPlus(str[i]) then begin
-                if not(isDigit(lastSymbol) or isVar(lastSymbol) or (lastSymbol = ')')) then begin
-                    error(i, 'Ошибка со знаком операции.', str);
-                    isValid := false;
-                    exit();
-                end;
-             end
-             else begin
-                error(i, 'Ваша формула не прошла валидацию. Введите формулу в верном формате.', str);
-                isValid := false;
-                exit();
-             end;
-        end;
-        
-        if isOpened and (open = 0) then begin    
-            delete(substr, length(substr), 1); {Удаляем последнюю скобку}
-            if not(isValid(substr)) then begin
-                error(i, 'Неверный баланс скобок.', str);
+        {number}
+        else if isDigit(str[i]) then begin
+            if not (isDigit(lastSymbol) or isSignPlus(lastSymbol) or isOpenBracket(lastSymbol)) then begin
+                error(i, 'Неверный формат числа.', str);
                 isValid := false;
                 exit();
             end;
-            substr := '';
-            isOpened := false;
+        end
+        {var}
+        else if isVar(str[i]) then begin
+            if not (isSignPlus(lastSymbol) or isOpenBracket(lastSymbol)) then begin
+                error(i, 'Неверный формат переменной.', str);
+                isValid := false;
+                exit();
+            end;
+        end
+        {sign}
+        else if not (isDigit(lastSymbol) or isVar(lastSymbol) or isCloseBracket(lastSymbol)) then begin
+            error(i, 'Ошибка со знаком операции.', str);
+            isValid := false;
+            exit();
         end;
         
         lastSymbol := str[i];
     end;
     
     if open > 0 then begin
-    	write('Не хватает закрывающих скобок');
-    	isValid := false;
-   	end
-   	else
-   		isValid := true;
+        write('Не хватает закрывающих скобок');
+        isValid := false;
+    end
+    else
+        isValid := true;
+end;
+
+function searchCloseBrecket(str: string; start: integer): integer;
+var
+    open, i: integer;
+begin
+    open := 1;
+    for i := start to length(str) do begin
+        if isOpenBracket(str[i]) then
+            inc(open)
+        else if isCloseBracket(str[i]) then
+            dec(open);
+        
+        if open = 0 then begin
+            searchCloseBrecket := i;
+            exit();
+        end;
+    end;
+    
+    searchCloseBrecket := 0;
 end;
 
 function clear(str: string): string;
-var	
-	open, i: integer;
 begin
-	while str[1] = '(' do begin
-    	open := 1;
-        for i := 2 to length(str) do begin
-            if str[i] = '(' then
-                inc(open)
-            else if str[i] = ')' then
-                dec(open);
-            if open = 0 then begin
-                if i = length(str) then
-                    str := copy(str, 2, length(str) - 2)
-                else
-                    break;
-            end;        
-        end;
-    end;
-    clear := str;
+    if searchCloseBrecket(str, 2) = length(str) then
+        clear := copy(str, 2, length(str) - 2)
+    else
+        clear := str;
 end;
 
 function strToTree(str: string): Ttree;
@@ -199,10 +179,11 @@ begin
     str := clear(str);
     
     i := 1;
-    if not(isNumOrVar(str)) then begin
-        while i <= length(str) do begin
+    if not (isNumOrVar(str)) then begin
+        while i <= length(str) do 
+        begin
             case str[i] of
-                '(': while str[i + 1] <> ')' do inc(i);
+                '(': i := searchCloseBrecket(str, i+1);
                 '+', '-': 
                     begin
                         exp^.left := strToTree(copy(str, 1, i - 1));
@@ -212,13 +193,13 @@ begin
                         break;
                     end;
                 '*', '/':
-                    saved_position := i;
+                saved_position := i;
             end;
             
             inc(i);
         end;
         
-        if not(first_op) then begin
+        if not (first_op) then begin
             exp^.left := strToTree(copy(str, 1, saved_position - 1));
             exp^.right := strToTree(copy(str, saved_position + 1, length(str) - saved_position));
             exp^.value := str[saved_position];
@@ -226,8 +207,8 @@ begin
     end
     else
         exp^.value := str;
-            
-strToTree := exp;
+    
+    strToTree := exp;
 end;
 
 procedure printTreePost(exp: Ttree);
@@ -240,19 +221,24 @@ begin
         printTreePost(exp^.right);
         write(exp^.value);
         write(')');
-  end;
+    end;
 end;
 
 begin
-    write('Введите выражение в нормальном виде или "q", чтобы завершить программу.');
-    repeat
-    	writeLn();
-        readLn(str);
-        if str = 'q' then
-        	halt();
-    until isValid(str);
-    
-    exp := strToTree(str);
-    
-    printTreePost(exp);
+    while true do 
+    begin
+        write('Введите выражение в нормальном виде или "quit", чтобы завершить программу.');
+        repeat
+            writeLn();
+            readLn(str);
+            if str = 'quit' then
+                halt();
+        until isValid(str);
+        
+        exp := strToTree(str);
+        writeLn('Выражение в постфиксной форме:');
+        printTreePost(exp);
+        writeLn();
+        writeLn('---------------------------------------------------------------');
+    end;
 end.
