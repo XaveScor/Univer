@@ -162,7 +162,7 @@ end;
 function clear(str: string): string;
 begin
     if searchCloseBrecket(str, 2) = length(str) then
-        clear := copy(str, 2, length(str) - 2)
+        clear := clear(copy(str, 2, length(str) - 2))
     else
         clear := str;
 end;
