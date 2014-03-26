@@ -1,5 +1,5 @@
-; Если текст, начиная с этой строки, читается нормально,
-; то файл в правильной кодировке.
+; Еaл? a??aa, н c?н i a iaой aaaо??, c?a ?aai ноaм лiно,
+; aо a йл ? ?a ??лiной ?од?aо???.
 
 include io.asm
 
@@ -8,7 +8,7 @@ stack segment stack
 stack ends
 
 data segment
-	input db 101 (?) ; last symbol - $
+	input db 101 dup (?) ; last symbol - $
 	inputLength db 0
 data ends
 
@@ -21,41 +21,40 @@ code segment 'code'
 		push Ax
 		push Bx
 	; </backup>
-	
+
 	; <default>
 		mov Ax, 0
 		mov Bx, 0
 	; </default>
-	
+
 	; <code>
-	readStart:
+	LreadStart:
 		inch Al
 		cmp Al, '.'
-			je readEnd
-		
+			je LreadEnd
+
 		inc inputLength
 		mov input[Bx], Al
-		add Bx, type input
-		jmp readStart
-	readEnd:
+		inc Bx
+		jmp LreadStart
+	LreadEnd:
 		mov input[Bx], '$' ; set end of string
 	; </code>
-	
+
 	; <restore>
 		pop Bx
 		pop Ax
 	; </restore>
+	ret
 	Read endp
 
 start:
 	mov ax,data
 	mov ds,ax
-	
+
 	call Read
 
-	lea Dx, input
-	outstr
-	
     finish
 code ends
-    end start 
+    end start
+	
