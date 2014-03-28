@@ -1,5 +1,5 @@
-; Åaë? a??aa, í c?í i a iaîé aaaî??, c?a ?aai íîaì ëiíî,
-; aî a éë ? ?a ??ëiíîé ?îä?aî???.
+; …a«? a??aa, ­ c?­ i a ia®© aaa®??, c?a ?aai ­®a¬ «i­®,
+; a® a ©« ? ?a ??«i­®© ?®¤?a®???.
 
 include io.asm
 
@@ -10,6 +10,7 @@ stack ends
 data segment
 	input db 100 dup (?), '$'
 	output db 100 dup (?), '$'
+	nums db 256 dup (0)
 	inputLength db 0
 	result db 0
 data ends
@@ -176,31 +177,25 @@ code segment 'code'
 	; </backup>
 	
 	; <default>
-		mov Bp, 1  
+		mov Bp, 0
 		mov Bx, 0
-		mov Bh, input
 		mov Cx, 0
 			mov Cl, inputLength
-			sub Cl, 1;
-		mov Si, 1
-		mov output, Bh
+		mov Si, 0
 	; </default>
 	
 	; <code>
-	cmp Cx, 0
-		je L_false_CodeEnd
 	mov result, 2
 		L_false_L:
 			mov Bl, input[Si]
-			cmp Bl, Bh
+			cmp nums[Bx], 1
 				je L_false_End
 			mov output[Bp], Bl
-			mov Bh, Bl
 			inc Bp
+			inc nums[Bx]
 			L_false_End:
 				inc Si
 			loop L_false_L
-	L_false_CodeEnd:
 	; </code>
 	
 	; <restore>
@@ -274,3 +269,4 @@ start:
     finish
 code ends
     end start
+	
