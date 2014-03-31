@@ -1,5 +1,5 @@
-; …a«? a??aa, ­ c?­ i a ia®© aaa®??, c?a ?aai ­®a¬ «i­®,
-; a® a ©« ? ?a ??«i­®© ?®¤?a®???.
+; ?a?? a??aa, ? c?? i a ia?? aaa???, c?a ?aai ??a? ?i??,
+; a? a ?? ? ?a ???i??? ????a????.
 
 include io.asm
 
@@ -11,7 +11,7 @@ data segment
 	input db 100 dup (?), '$'
 	output db 100 dup (?), '$'
 	nums db 256 dup (0)
-	inputLength db 0
+	inputLength dw 0
 	result db 0
 data ends
 
@@ -130,14 +130,14 @@ code segment 'code'
 	; <default>
 		mov Ax, 0
 		mov Bx, 0
-		mov Cx, 0
-			mov Cl, inputLength
+		mov Cx, inputLength
 		mov Dx, 10
 	; </default>
 	
 	; <code>
 	mov result, 1
 		L_true_L:
+		
 			mov Al, input[Bx]
 			
 			mov Dh, Al
@@ -179,23 +179,30 @@ code segment 'code'
 	; <default>
 		mov Bp, 0
 		mov Bx, 0
-		mov Cx, 0
-			mov Cl, inputLength
+		mov Cx, inputLength
 		mov Si, 0
 	; </default>
 	
 	; <code>
 	mov result, 2
-		L_false_L:
+		L_false_L1:
+			mov Bl, input[Si]
+			inc nums[Bx]
+			inc Si
+			loop L_false_L1
+		
+		mov Bl, 0
+		mov Si, 0
+		L_false_L2:
 			mov Bl, input[Si]
 			cmp nums[Bx], 1
-				je L_false_End
+				jne L_false_End
 			mov output[Bp], Bl
 			inc Bp
 			inc nums[Bx]
 			L_false_End:
 				inc Si
-			loop L_false_L
+			loop L_false_L2
 	; </code>
 	
 	; <restore>
@@ -249,8 +256,7 @@ start:
 		cmp Al, 0
 			je short L_If_False
 	
-	mov Bx, 0
-	mov Bl, inputLength
+	mov Bx, inputLength
 	dec Bl
 	
 	mov Al, input[Bx]
