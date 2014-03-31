@@ -146,6 +146,7 @@ code segment 'code'
 					je short L_true_NotBigLetter
 			
 			mov Al, Dh
+			sub Al, 'A' - 1
 			mov Ah, 0
 			div Dl
 			add Ah, '0'
@@ -157,6 +158,7 @@ code segment 'code'
 				mov output[Bx], Ah
 				inc Bx
 			loop L_true_L
+			mov output[Bx], '$'
 	; </code>
 	
 	; <restore>
@@ -193,16 +195,17 @@ code segment 'code'
 		
 		mov Bl, 0
 		mov Si, 0
+		mov Cx, inputLength
 		L_false_L2:
 			mov Bl, input[Si]
 			cmp nums[Bx], 1
 				jne L_false_End
 			mov output[Bp], Bl
 			inc Bp
-			inc nums[Bx]
 			L_false_End:
 				inc Si
 			loop L_false_L2
+			mov output[Bp], '$'
 	; </code>
 	
 	; <restore>
