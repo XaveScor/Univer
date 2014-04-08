@@ -1,3 +1,4 @@
+#12312
 program Vassilyev1_3_3_3;
 type
     func = function (x: real):real;
