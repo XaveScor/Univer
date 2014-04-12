@@ -139,7 +139,7 @@ begin
         isValid := true;
 end;
 
-function searchCloseBrecket(str: string; start: integer): integer;
+function searchCloseBracket(str: string; start: integer): integer;
 var
     open, i: integer;
 begin
@@ -183,7 +183,7 @@ begin
         while i <= length(str) do 
         begin
             case str[i] of
-                '(': i := searchCloseBrecket(str, i+1);
+                '(': i := searchCloseBracket(str, i+1);
                 '+', '-': 
                     begin
                         exp^.left := strToTree(copy(str, 1, i - 1));
