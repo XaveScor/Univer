@@ -149,7 +149,6 @@ code segment 'code'
 			sub Al, 'A' - 1
 			mov Ah, 0
 			div Dl
-			add Ah, '0'
 			jmp short L_true_End
 			
 			L_true_NotBigLetter:
