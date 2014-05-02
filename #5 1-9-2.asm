@@ -63,16 +63,19 @@ heap segment 'code'
 		New_loop:
 			mov Bx, ES:[Bx]
 			cmp Bx, NIL
-				je New_Err
+				je short New_Err
 			loop New_loop
-			
-		mov ES:heap_head, Bx
 		
+		New_back:
+			mov ES:heap_head, Bx
+
 		pop ES
 		pop Cx
 		pop Bx
 	ret
 	New_Err:
+		cmp Cx, 0
+			je New_back
 		lea Dx, ES:Err
 		outstr
 		newline
@@ -83,6 +86,7 @@ heap ends
 
 data segment
 	Buffer db 8 dup (' '), '$'
+	Empty db 8 dup ('A' - 1), '$'
 	errInput db 'Ошибка во входных данных$'
 	Link el <>
 data ends
@@ -146,50 +150,51 @@ code segment 'code'
 		finish
 	Read endp
 	
-	CreateEl proc
-		mov Link.num, Cx
-		
-		push Ax
+	
+	CompHash proc
 		push Bx
 		push Cx
-		push Dx
 		push Si
 		
-		mov Cx, 4
 		mov Ax, 0
 		mov Bx, 0
+		mov Cx, 4
 		mov Dx, 0
 		mov Si, 26
-		CreateEl_Left:
+		
+		CompHash_loop:
 			mul Si
-			add Al, Buffer[Bx]
+			add Al, Buffer[Bx][Di]
 			adc Ah, 0
 			inc Bx
 			sub Ax, 'A' - 1
-			loop CreateEl_Left
+			loop CompHash_loop
+			
+		pop Si
+		pop Cx
+		pop Bx
+	ret
+	CompHash endp
+	
+	CreateEl proc
+		push Ax
+		push Dx
+		push Di
 		
+		mov Link.num, Cx
+		
+		mov Di, 0
+		call CompHash
 		mov Link.first, Dx
 		mov Link.second, Ax
 		
-		mov Cx, 4
-		mov Ax, 0
-		mov Bx, 0
-		mov Dx, 0
-		CreateEl_Right:
-			mul Si
-			add Al, Buffer[Bx + 4]
-			adc Ah, 0
-			inc Bx
-			sub Ax, 'A' - 1
-			loop CreateEl_Right
-		
+		mov Di, 4
+		call CompHash
 		mov Link.third, Dx
 		mov Link.fourth, Ax
 		
-		pop Si
+		pop Di
 		pop Dx
-		pop Cx
-		pop Bx
 		pop Ax
 	ret
 	CreateEl endp
@@ -204,31 +209,53 @@ code segment 'code'
 		
 		mov Bx, heap
 		mov ES, Bx
-		lea Si, Link.first
-		
-		mov Bx, ES:List
-		mov Bp, Bx
-		cmp Bx, NIL
-			je short Add2List_push
 		
 		cld
+		mov Bx, ES:List
+		cmp Bx, NIL
+			je short Add2List_pushFirst
+		;mov Bp, Bx
+		
+		
 		Add2List_findPlace:
 			mov Cx, 4
-			mov Di, Bx 
+			mov Di, Bx
+			lea Si, Link
 			repe cmpsw
-				je short Add2List_end
-				jb short Add2List_push
+				je Add2List_end
+				jb Add2List_push
 			cmp ES:[Bx].next, NIL
-				je short Add2List_push
+				je Add2List_pushEnd
 			mov Bp, Bx
 			mov Bx, ES:[Bx].next
 			jmp Add2List_findplace
 		
 		Add2List_push:
+			cmp Bx, ES:List
+				je Add2List_pushFirst
 			call far ptr New
 			mov ES:[Bp].next, Di
 			mov ES:[Di].next, Bx
 			mov Cx, 5
+			lea Si, Link
+			rep movsw
+			jmp Add2List_end
+			
+		Add2List_pushEnd:
+			call far ptr New
+			mov ES:[Bx].next, Di
+			mov ES:[Di].next, NIL
+			mov Cx, 5
+			lea Si, Link
+			rep movsw
+			jmp Add2List_end
+			
+		Add2List_pushFirst:
+			call far ptr New
+			mov ES:List, Di
+			mov ES:[Di].next, Bx
+			mov Cx, 5
+			lea Si, Link
 			rep movsw
 			
 		Add2List_end:
@@ -247,17 +274,24 @@ code segment 'code'
 		
 		mov Si, 26
 		mov Cx, 4
+		push Cx
 		Write4Symbol_loop:
 			cwd
 			div Si
 			cmp Dx, 0
-				jne WriteStrings_leftNull 
+				je WriteStrings_Null 
 				add Dx, 'A' - 1
-				outch Dl
-			WriteStrings_leftNull:
+				push Dx
+			WriteStrings_Null:
 			mov Dx, 0
 			loop Write4Symbol_loop
-		
+		Write4Symbol_loop2:
+			pop Dx
+			cmp Dx, 4
+				je Write4Symbol_end
+			outch Dl
+			jmp Write4Symbol_loop2
+		Write4Symbol_end:
 		pop Si
 		pop Cx
 	ret
@@ -269,26 +303,32 @@ code segment 'code'
 		push Dx
 		push ES
 			
+			mov Bx, heap
+			mov ES, Bx
+			
 			mov Bx, ES:List
-			WriteStrings_loop: 
+			cmp Bx, NIL
+				je WriteStrings_end
+			WriteStrings_loop:
 				mov Dx, ES:[Bx].first
 				mov Ax, ES:[Bx].second
 				call Write4symbol
 				
 				mov Dx, ES:[Bx].third
-				mov Ax, ES:[Bx].third
+				mov Ax, ES:[Bx].fourth
 				call Write4symbol
 				
-				cmp ES:[Bx].next, NIL
-					je short WriteStrings_end
 				outch '('
 				outint ES:[BX].num
 				outch ')'
 				outch ' '
+				cmp ES:[Bx].next, NIL
+					je short WriteStrings_end
+					
 				mov Bx, ES:[Bx].next
 				jmp WriteStrings_loop
 		
-		WriteStrings_end:	
+		WriteStrings_end:
 		pop ES
 		pop Dx
 		pop Bx
@@ -298,12 +338,22 @@ code segment 'code'
 start:
 	mov ax,data
 	mov ds,ax
+	mov ES, Ax
 	
 	call Init
 	mov Cx, 0
 	L:
 		call Read
-		inc Cx
+		
+		push Cx
+		lea Si, Buffer
+		lea Di, Empty
+		mov Cx, 8
+		repe cmpsb
+		pop Cx		
+			je L
+		
+		inc Cx 
 		call CreateEl
 		call Add2List
 		cmp Bl, '.'
