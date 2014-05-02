@@ -63,7 +63,7 @@ heap segment 'code'
 		New_loop:
 			mov Bx, ES:[Bx]
 			cmp Bx, NIL
-				je short New_Err
+				je New_Err
 			loop New_loop
 		
 		New_back:
@@ -213,7 +213,7 @@ code segment 'code'
 		cld
 		mov Bx, ES:List
 		cmp Bx, NIL
-			je short Add2List_pushFirst
+			je Add2List_pushFirst
 		;mov Bp, Bx
 		
 		
@@ -323,7 +323,7 @@ code segment 'code'
 				outch ')'
 				outch ' '
 				cmp ES:[Bx].next, NIL
-					je short WriteStrings_end
+					je WriteStrings_end
 					
 				mov Bx, ES:[Bx].next
 				jmp WriteStrings_loop
