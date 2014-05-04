@@ -6,7 +6,7 @@ stack ends
 HEAP_SIZE EQU 512
 NIL EQU 0
 
-el struct
+el struc
 	first dw 0
 	second dw 0
 	third dw 0
@@ -16,6 +16,8 @@ el struct
 el ends
 
 heap segment 'code'
+	assume cs: heap
+	
 	heap_head dw ?
 	dw HEAP_SIZE dup (?)
 	List dw NIL
