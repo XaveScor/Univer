@@ -7,10 +7,7 @@ HEAP_SIZE EQU 512
 NIL EQU 0
 
 el struc
-	first dw 0
-	second dw 0
-	third dw 0
-	fourth dw 0
+	string db 8 dup (' ')
 	num dw 0
 	next dw 0
 el ends
@@ -88,7 +85,7 @@ heap ends
 
 data segment
 	Buffer db 8 dup (' '), '$'
-	Empty db 8 dup ('A' - 1), '$'
+	Empty db 8 dup (' '), '$'
 	errInput db 'Ошибка во входных данных$'
 	Link el <>
 data ends
@@ -137,7 +134,7 @@ code segment 'code'
 			loop Read_endword
 			
 		Read_space:
-			mov Al, 'A' - 1
+			mov Al, ' '
 			rep stosb
 		
 		pop ES
@@ -152,52 +149,27 @@ code segment 'code'
 		finish
 	Read endp
 	
-	
-	CompHash proc
-		push Bx
-		push Cx
-		push Si
-		
-		mov Ax, 0
-		mov Bx, 0
-		mov Cx, 4
-		mov Dx, 0
-		mov Si, 26
-		
-		CompHash_loop:
-			mul Si
-			add Al, Buffer[Bx][Di]
-			adc Ah, 0
-			inc Bx
-			sub Ax, 'A' - 1
-			loop CompHash_loop
-			
-		pop Si
-		pop Cx
-		pop Bx
-	ret
-	CompHash endp
-	
 	CreateEl proc
-		push Ax
-		push Dx
-		push Di
-		
 		mov Link.num, Cx
 		
-		mov Di, 0
-		call CompHash
-		mov Link.first, Dx
-		mov Link.second, Ax
+		push Cx
+		push Si
+		push Di
+		push ES
 		
-		mov Di, 4
-		call CompHash
-		mov Link.third, Dx
-		mov Link.fourth, Ax
+		mov Cx, data
+		mov ES, Cx
 		
+		cld
+		mov Cx, 4
+		lea Si, Buffer
+		lea Di, Link
+		rep movsw
+		
+		pop ES
 		pop Di
-		pop Dx
-		pop Ax
+		pop Si
+		pop Cx
 	ret
 	CreateEl endp
 	
@@ -216,14 +188,13 @@ code segment 'code'
 		mov Bx, ES:List
 		cmp Bx, NIL
 			je Add2List_pushFirst
-		;mov Bp, Bx
 		
 		
 		Add2List_findPlace:
-			mov Cx, 4
+			mov Cx, 8
 			mov Di, Bx
 			lea Si, Link
-			repe cmpsw
+			repe cmpsb
 				je Add2List_end
 				jb Add2List_push
 			cmp ES:[Bx].next, NIL
@@ -270,39 +241,11 @@ code segment 'code'
 	ret
 	Add2List endp
 	
-	Write4Symbol proc
-		push Cx
-		push Si
-		
-		mov Si, 26
-		mov Cx, 4
-		push Cx
-		Write4Symbol_loop:
-			cwd
-			div Si
-			cmp Dx, 0
-				je WriteStrings_Null 
-				add Dx, 'A' - 1
-				push Dx
-			WriteStrings_Null:
-			mov Dx, 0
-			loop Write4Symbol_loop
-		Write4Symbol_loop2:
-			pop Dx
-			cmp Dx, 4
-				je Write4Symbol_end
-			outch Dl
-			jmp Write4Symbol_loop2
-		Write4Symbol_end:
-		pop Si
-		pop Cx
-	ret
-	Write4Symbol endp
-	
 	WriteStrings proc
 		push Ax
 		push Bx
-		push Dx
+		push Cx
+		push Si
 		push ES
 			
 			mov Bx, heap
@@ -311,28 +254,31 @@ code segment 'code'
 			mov Bx, ES:List
 			cmp Bx, NIL
 				je WriteStrings_end
+			
 			WriteStrings_loop:
-				mov Dx, ES:[Bx].first
-				mov Ax, ES:[Bx].second
-				call Write4symbol
-				
-				mov Dx, ES:[Bx].third
-				mov Ax, ES:[Bx].fourth
-				call Write4symbol
-				
+				mov Cx, 8
+				mov Si, 0
+				WriteString_begin:
+					mov Al, ES:[Bx].string[Si]
+					cmp Al, ' '
+						je WriteString_miss
+						outch Al
+					WriteString_miss:
+						inc Si 
+					loop WriteString_begin
 				outch '('
 				outint ES:[BX].num
 				outch ')'
 				outch ' '
 				cmp ES:[Bx].next, NIL
-					je WriteStrings_end
-					
+					je WriteStrings_end	
 				mov Bx, ES:[Bx].next
 				jmp WriteStrings_loop
 		
 		WriteStrings_end:
 		pop ES
-		pop Dx
+		pop Si
+		pop Cx
 		pop Bx
 		pop Ax
 	ret
@@ -346,15 +292,6 @@ start:
 	mov Cx, 0
 	L:
 		call Read
-		
-		push Cx
-		lea Si, Buffer
-		lea Di, Empty
-		mov Cx, 8
-		repe cmpsb
-		pop Cx		
-			je L
-		
 		inc Cx 
 		call CreateEl
 		call Add2List
