@@ -85,7 +85,6 @@ heap ends
 
 data segment
 	Buffer db 8 dup (' '), '$'
-	Empty db 8 dup (' '), '$'
 	errInput db 'Ошибка во входных данных$'
 	Link el <>
 data ends
