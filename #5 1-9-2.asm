@@ -285,7 +285,6 @@ code segment 'code'
 start:
 	mov ax,data
 	mov ds,ax
-	mov ES, Ax
 	
 	call Init
 	mov Cx, 0
