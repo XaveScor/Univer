@@ -1,3 +1,7 @@
+//!! DEBUG const is staying in compiller enviroment
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
