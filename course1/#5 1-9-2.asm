@@ -80,12 +80,12 @@ heap segment 'code'
 		newline
 		finish
 	new endp
-	Err db 'Переполнение кучи$'
+	Err db 'ГЏГҐГ°ГҐГЇГ®Г«Г­ГҐГ­ГЁГҐ ГЄГіГ·ГЁ$'
 heap ends
 
 data segment
 	Buffer db 8 dup (' '), '$'
-	errInput db 'Ошибка во входных данных$'
+	errInput db 'ГЋГёГЁГЎГЄГ  ГўГ® ГўГµГ®Г¤Г­Г»Гµ Г¤Г Г­Г­Г»Гµ$'
 	Link el <>
 data ends
 
