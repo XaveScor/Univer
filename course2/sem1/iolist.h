@@ -1,6 +1,7 @@
 # pragma once
 
 #define DELIMITER '\n'
+#define EOS '\0'
 #define SEPARATOR ' '
 #define BORDER '"'
 #define MULTIPLYER 1.6

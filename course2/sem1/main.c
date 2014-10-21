@@ -1,7 +1,3 @@
-//!! DEBUG const is staying in compiller enviroment
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,11 +48,12 @@ void printList(pNode list) {
     printf("(%s) ", list->value);
 }
 
+
 char input(pNode *list) {
 	size_t cur = 0,
            len = 1;
-	char ch = '\0', *str = NULL;
-	bool flag = false, state = false;;
+	char ch = EOS, *str = NULL;
+	bool state = false;
 
 	clearList(list);
 	clearStr(&str);
@@ -69,7 +66,7 @@ char input(pNode *list) {
                 case BORDER:
                     state = false;
                     if (ch == BORDER)
-                        ch = SEPARATOR;
+                        continue;
                     break;
                 default:
                     addSymbol(ch, &str, &cur, &len);
@@ -87,16 +84,16 @@ char input(pNode *list) {
 
             case DELIMITER:
 			case EOF:
-			    flag = true;
 			case SEPARATOR:
-				str[cur] = '\0';
+				str[cur] = EOS;
 				pushList(str, list);
 
 				clearStr(&str);
 				cur = 0;
 				len = 1;
-
-				if (flag) return ch;
+                if (ch == SEPARATOR)
+                    continue;
+				return ch;
 		}
 	}
 }
@@ -107,7 +104,7 @@ void clearStr(char **str) {
 
     *str = (char *)malloc(sizeof(char));
     assert(*str);
-    **str = '\0';
+    **str = EOS;
 }
 
 int main() {
