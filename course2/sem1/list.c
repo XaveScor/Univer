@@ -1,22 +1,4 @@
-# pragma once
-
-#include <string.h>
-#include <stdlib.h>
-#include <assert.h>
-
 #include "main.h"
-
-typedef struct Node* pNode;
-
-typedef struct Node{
-	char *value;
-	pNode next;
-} Node;
-
-void clearList(pNode *);
-void pushList(char *, pNode *);
-void addSymbol(char, char **, size_t *, size_t *);
-char *getName(pNode);
 
 void clearList(pNode *list) {
 	pNode next;
@@ -41,15 +23,6 @@ void pushList(char *str, pNode *list) {
 
 	el->next = (*list);
 	(*list) = el;
-}
-
-void addSymbol(char ch, char **str, size_t *cur, size_t *len) {
-    if (*cur + 1 >= *len) {
-        *len = (size_t)(MULTIPLYER * (*len) + 1.0);
-        *str = (char *)realloc(*str, sizeof(char) * (*len));
-    }
-    assert(*str);
-    *(*str + (*cur)++) = ch;
 }
 
 char *getName(pNode list) {
