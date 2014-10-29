@@ -4,10 +4,8 @@ void exec(pNode list) {
     if (list == NULL)
         return;
 
-    char *name = getName(list);
-
-    if (!strcmp(name, "cd"))
-        return execCD(list);
+    if (!strcmp(list->value, "cd"))
+        return execCD(list->next);
 
     if (fork())
         return execParent();

@@ -13,7 +13,6 @@ void clearStr(char **str) {
     if (*str)
         free(*str);
 
-    *str = (char *)malloc(sizeof(char));
+    *str = (char *)calloc(1, sizeof(char));
     assert(*str);
-    **str = EOS;
 }

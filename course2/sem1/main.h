@@ -17,9 +17,8 @@
 #define MULTIPLYER 1.6
 
 
-typedef struct Node* pNode;
-
-typedef struct Node{
+typedef struct sNode* pNode;
+typedef struct sNode{
 	char *value;
 	pNode next;
 } Node;
@@ -27,7 +26,6 @@ typedef struct Node{
 char input(pNode *);
 void clearList(pNode *);
 void pushList(char *, pNode *);
-char *getName(pNode);
 
 void addSymbol(char, char **, size_t *, size_t *);
 void clearStr(char **);

@@ -16,21 +16,20 @@ void pushList(char *str, pNode *list) {
 
 	pNode el = (pNode)malloc(sizeof(Node));
 	assert(el);
-	el->value = (char *)malloc(sizeof(char) * strlen(str));
+	el->value = (char *)malloc(sizeof(char) * strlen(str) + 1);
 	assert(el->value);
+	el->next = NULL;
 
 	strcpy(el->value, str);
 
-	el->next = (*list);
-	(*list) = el;
-}
+    if (!(*list)) {
+        *list = el;
+        return;
+    }
 
-char *getName(pNode list) {
-    pNode lastEl = list;
-    while (lastEl->next)
-        lastEl = lastEl->next;
-
-    char *ret = (char *)malloc(strlen(lastEl->value) * sizeof(char) + 1);
-    strcpy(ret, lastEl->value);
-    return ret;
+    pNode temp = *list;
+    while (temp->next) {
+        temp = temp->next;
+    }
+    temp->next = el;
 }
