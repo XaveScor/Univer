@@ -16,3 +16,9 @@ void clearStr(char **str) {
     *str = (char *)calloc(1, sizeof(char));
     assert(*str);
 }
+
+void printHello() {
+    char *cwd = malloc(sizeof(char) * 256);
+    getcwd(cwd, 256);
+    printf("%s: ", cwd);
+}

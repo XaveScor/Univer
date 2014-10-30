@@ -24,13 +24,16 @@ typedef struct sNode{
 } Node;
 
 char input(pNode *);
+void Xexit();
+
 void clearList(pNode *);
 void pushList(char *, pNode *);
 
 void addSymbol(char, char **, size_t *, size_t *);
 void clearStr(char **);
-void exec(pNode);
+void printHello();
 
+void exec(pNode);
 void execParent();
 void execChild(pNode);
 void execCD(pNode);

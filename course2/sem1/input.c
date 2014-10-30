@@ -47,3 +47,8 @@ char input(pNode *list) {
 		}
 	}
 }
+
+void Xexit() {
+    printf("!!Custom UNIX shell closed!!\n\n");
+    exit(EXIT_SUCCESS);
+}
